@@ -1,0 +1,140 @@
+Columns:
+'Institute ID', 'TLR(100)', 'RPC(100)' 'GO(100)', 'OI(100)', 'Perception(100)', 'Score', 'Ranking', 'TLR_SS_NT', 'TLR_SS_NE', 'TLR_SS_NP', 'TLR_SS_f(NT,NE)', 'TLR_SSf(NP)', 'TLR_SS', 'TLR_FSR_F', 'TLR_FSR_N (NT+NP)', 'TLR_FSR', 'TLR_FQE_FRA', 'FRA_Faculty_with_PhD', 'TLR_FQE_FQ', 'Total_no_of_Faculty', 'Faculty_with_exp_upto_8yrs', 'Faculty_with_exp_between_8_to_15yrs', 'Faculty_with_exp_above_15yrs', 'TLR_FQE_F1', 'TLR_FQE_FE', 'TLR_FQE_F2', 'TLR_FQE_F3', 'TLR_FQE', 'TLR_FRU_BC', 'TLR_FRU_BO', 'TLR_FRU', 'TLR_OE_RD', 'TLR_OE_GD', 'TLR_OE_ESCS', 'TLR_OE_DA', 'TLR_MR_Employer_Score', 'TLR_MR_Academic_Peer_Score', 'TLR_MR_Public_Perception_Score', 'OE_Score', 'MR_Score ', 'OE_MR_Final_Score ', 'RP_SDG4', 'RP_SDG5', 'RP_SDG6', 'RP_SDG7', 'RP_SDG13', 'RP_SDG9', 'RP_SDG', 'RP_PU_P', 'RP_FRQ_Required', 'RP_FRQ_available', 'FRQ_min(Req,Aval)', 'RP_PU_f(P/FRQ)', 'RP_PU', 'RP_QP_CC', 'RP_QP_TOP25P', 'RP_QP_FRQ', 'RP_QP_f(CC/FRQ)', 'RP_QP-F( TOP25P/P)', 'RP_QP', 'RP_IPR_PG', 'RP_IPR_PP', 'RP_IPR', 'RP_FPPP_RF', 'RP_RF_Total_Research_Funding', 'RP_FPPP_CF', 'RP_CF_Total_Consultancy_Amt', 'RP_FPPP_FPC', 'RP_FPPP_FPR', 'FPPP', 'GO_GPH_Np', 'GO_NP_PLACED_STD', 'GO_NP_Total_GRADUATING_STD', 'GO_GPH_Nhs', 'GO_NHS_STUDENTS_PLACED_FOR_HIGHER_STUDIES', 'GPH', 'GO_GUE_Ng', 'GUE', 'GO_GMS_MS', 'GMS', 'GO_GPHD_Nphd', 'GO_GPHD', 'RD_Students_Other_States', 'OI_RD_FractionOtherStates', 'RD_Students_Other_Countries', 'OI_RD_FractionOtherCountries', 'OI_RD', 'Female_Students', 'Female_Faculty', 'OI_WD_NWS', 'OI_WD_NWF', 'OI_WD', 'OI_PCS', 'OI_ESCS_Nesc', 'OI_ESCS', 'PR_Employer_Score', 'PR_Academic_Peer_Score', 'PR_Accreditation_Score', 'PR_PeerPerception', 'PR+Accr'
+
+
+
+###TLR
+#SS
+    df['TLR_SSf(NP)'] = df['TLR_SS_NP'] / df['TLR_SS_NP'].max()
+
+    df['TLR_SS'] = df['TLR_SS_f(NT,NE)'] * 15 + df['TLR_SSf(NP)'] * 5
+    df['TLR_SS_f(NT,NE)'] = df['TLR_SS_NT'] / df['TLR_SS_NE']
+#FSR
+
+    df['TLR_FSR_N (NT+NP)'] = df['TLR_SS_NT'] + df['TLR_SS_NP']
+
+    df['TLR_FSR'] = 30 * (15 * (df['TLR_FSR_F'] / df['TLR_FSR_N (NT+NP)']))
+
+#FQE
+
+    # Compute FRA
+    df['TLR_FQE_FRA'] = (df['FRA_Faculty_with_PhD'] / df['Total_no_of_Faculty']).round(4)  # Rounded for readability
+
+    # Compute FQ (TLR_FQE_FQ)
+    df['TLR_FQE_FQ'] = df['TLR_FQE_FRA'].apply(lambda FRA: 10 * (FRA / 95) if FRA < 95 else 10)
+
+   # Compute FE (TLR_FQE_FE)
+    df['TLR_FQE_FE'] = (3 * df['TLR_FQE_F1'].apply(lambda x: min(3 * x, 1)) +
+                     3 * df['TLR_FQE_F2'].apply(lambda x: min(3 * x, 1)) +
+                     4 * df['TLR_FQE_F3'].apply(lambda x: min(3 * x, 1)))
+
+    # Compute FQE (Final Score TLR_FQE)
+    df['TLR_FQE'] = df['TLR_FQE_FQ'] + df['TLR_FQE_FE']
+
+#FRU
+    df['TLR_FRU'] = 7.5 * df['TLR_FRU_BC'] + 22.5 * df['TLR_FRU_BO']
+
+#OE+MR
+# Calculate OE Score
+df["OE_Score"] = (df["TLR_OE_RD"] + df["TLR_OE_GD"] + df["TLR_OE_ESCS"] + df["TLR_OE_DA"]) / 4
+
+# Calculate MR Score
+df["MR_Score "] = (df["TLR_MR_Employer_Score"] * 0.4) + (df["TLR_MR_Academic_Peer_Score"] * 0.4) + (df["TLR_MR_Public_Perception_Score"] * 0.2)
+
+# Calculate OE+MR Score
+df["OE_MR_Final_Score "] = df["OE_Score"] * 0.5 + df["MR_Score"]
+
+# Save updated dataset
+df.to_csv(file_path, index=False)
+
+###RP
+#PU
+
+    # Compute f(P/FRQ)
+    df['RP_PU_f(P/FRQ)'] = df['RP_PU_P'] / df['RP_PU_FRQ']
+
+    # Compute PU
+    df['RP_PU'] = 35 * df['RP_PU_f(P/FRQ)']
+
+#QP
+    df['RP_FRQ_Required'] = df['TLR_SS_NT'] / 15
+
+    df['RP_FRQ_available'] = df['Total_no_of_Faculty']
+
+    # Compute Min FRQ
+    df['FRQ_min(Req,Aval)'] = df[['RP_FRQ_Required', 'RP_FRQ_available']].min(axis=1)
+
+    # Compute f(CC/FRQ)
+    df['RP_QP_f(CC/FRQ)'] = df['RP_QP_CC'] / df['RP_QP_FRQ']
+
+    # Compute f(TOP25P/P)
+    df['RP_QP-F( TOP25P/P)'] = df['RP_QP_TOP25P'] / df['RP_PU_P']
+
+
+    df['RP_QP'] = 20 * df['RP_QP_f(CC/FRQ)'] + 20 * df['RP_QP-F( TOP25P/P)']
+
+    # Compute IPG (Patents Granted Score)
+    df['RP_IPR'] = (10 * df['RP_IPR_PG']) + (5 * df['RP_IPR_PP'])
+
+# FPPP
+    # Compute RF
+    df['RP_FPPP_RF'] = df['RP_RF_Total_Research_Funding'] / df['Total_no_of_Faculty']
+
+    # Compute RF
+    df['RP_FPPP_CF'] = df['RP_CF_Total_Consultancy_Amt'] / df['Total_no_of_Faculty']
+
+  df['RP_FPPP_FPR'] = 7.5 * df['RP_FPPP_RF']
+  df['RP_FPPP_FPC'] = 2.5 * df['RP_FPPP_CF']
+  df['FPPP'] = df['RP_FPPP_FPR'] + df['RP_FPPP_FPC']
+ 
+#SDG
+df["RP_SDG"] = (df["RP_SDG4"] * 0.25) + (df["RP_SDG5"] * 0.15) + (df["RP_SDG6"] * 0.15) + (df["RP_SDG7"] * 0.15) + (df["RP_SDG13"] * 0.15)+(df["RP_SDG9"] * 0.15)
+
+###GO
+#GPH
+    df['GO_GPH_Np'] = (df['GO_NP_PLACED_STD'] / df['GO_NP_Total_GRADUATING_STD']) * 100
+
+
+    df['GO_GPH_Nhs'] = (df['GO_NHS_STUDENTS_PLACED_FOR_HIGHER_STUDIES'] / df['GO_NP_Total_GRADUATING_STD']) * 100
+
+    df['GPH'] = 40 * ((df['GO_GPH_Np'] / 100) + (df['GO_GPH_Nhs'] / 100))
+
+#GUE
+    # Compute GUE (Graduate Enrollment Score)
+    df['GUE'] = 15 * df['GO_GUE_Ng'].apply(lambda Ng: min(Ng / 80, 1))
+
+    # Save updated dataset
+#GMS
+
+    # Compute GMS (Graduate Median Salary Score)
+    df['GMS'] = 25 * df['GO_GMS_MS']
+
+   #GPHD
+    # Compute GMS (Graduate Median Salary Score)
+    df['GO_GPHD'] = 20 * df['GO_GPHD_Nphd']
+
+###OI
+#RD
+    # Compute fractions
+    df['OI_RD_FractionOtherStates'] = df['RD_Students_Other_States'] / df['TLR_SS_NE']
+    df['OI_RD_FractionOtherCountries'] = df['RD_Students_Other_Countries'] / df['TLR_SS_NE']
+
+    # Compute RD (Regional Diversity Score)
+    df['OI_RD'] = 25 * df['OI_RD_FractionOtherStates'] + 5 * df['OI_RD_FractionOtherCountries']
+
+   
+#ESCS
+
+    # Compute ESCS
+    df['OI_ESCS'] = 20 * df['OI_ESCS_Nesc']
+
+  #WD
+
+    df["OI_WD"] = (df["OI_WD_NWS"] * 0.5) + (df["OI_WD_NWF"] * 0.5)
+    
+
+#PR
+
+    df["PR+Accr"] = (df["PR_Employer_Score"] * 0.4) + (df["PR_Academic_Peer_Score"] * 0.4) + (df["PR_Accreditation_Score"] * 0.2)
+
+ 
