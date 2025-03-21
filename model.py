@@ -1,15 +1,16 @@
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.impute import KNNImputer
 import pandas as pd
 import numpy as np
-from sklearn.preprocessing import MinMaxScaler
 
 file_path = "E:\\Recommendation_system\\NIRF-Recommendation-System\\Dataset\\NIRF_Final.xlsx"
 
+# Load data
 def load_data(file_path):
-    df = pd.read_excel(file_path, engine="openpyxl")  # Specify the engine
-    return df
+    return pd.read_excel(file_path, engine="openpyxl")
 
 df = load_data(file_path)
-print(df.columns.to_list())  # Print column names
+
 
 #  'Institute ID'
 score_columns = ['TLR(100)', 'RPC(100)', 'GO(100)', 'OI(100)', 'Perception(100)', 'Score', 'Ranking', 'TLR_SS_NT', 'TLR_SS_NE', 'TLR_SS_NP', 'TLR_SS_f(NT,NE)',
@@ -195,3 +196,13 @@ improvement_suggestions = recommend_improvements(institute_id)
 print("🔹 Recommended Improvements:")
 for rec in improvement_suggestions:
     print("-", rec)
+
+
+
+import pickle
+
+# Save cosine similarity matrix
+with open("cosine_similarity.pkl", "wb") as f:
+    pickle.dump(cosin_sim, f)
+
+
